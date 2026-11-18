@@ -1,0 +1,12 @@
+node_modules/
+dist/
+out/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+scripts/spike-out.jsonl
+runs/
+*.mp4
+*.mov

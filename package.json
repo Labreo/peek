@@ -1,0 +1,40 @@
+{
+  "name": "peek",
+  "version": "0.1.0",
+  "description": "Peek: a horror game where your MacBook lid is your eyelids. Built on the Presage SmartSpectra SDK.",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "npm run build && electron .",
+    "dev": "npm run build && electron . --debug",
+    "replay": "npm run build && electron . --replay",
+    "sim": "npm run build && electron . --sim-lid",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "spike:presage": "node scripts/spike-presage.cjs",
+    "make:sample": "node scripts/make-sample-run.mjs"
+  },
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@smartspectra/node-sdk": "^3.5.0",
+    "node-hid": "^3.4.0",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/three": "^0.170.0",
+    "electron": "^43.8.1",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.7.3",
+    "vitest": "^3.2.4"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.2": true,
+    "koffi@2.16.4": true,
+    "protobufjs@7.6.6": true,
+    "electron@43.8.1": true
+  },
+  "private": true
+}
