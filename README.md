@@ -94,7 +94,7 @@ MacBook hinge ──> node-hid (main, 30 Hz) ──> IPC ──┐     v
 
 - [`src/renderer/presage.ts`](src/renderer/presage.ts): the SmartSpectra integration. Requests breathing, `PULSE_RATE` and `BLINKING`, turns off telemetry, decodes each metrics packet into events.
 - [`src/main/lid.ts`](src/main/lid.ts): reads the hinge angle (HID usage page `0x20`, usage `0x8A`, feature report 1).
-- [`src/shared/signalBus.ts`](src/shared/signalBus.ts): filtering. Stable-only pulse with an EMA, a 4 s rolling breathing amplitude for breath-hold detection, edge-triggered blinks with a 250 ms refractory period, a median-filtered lid with 3 degrees of hysteresis.
+- [`src/shared/signalBus.ts`](src/shared/signalBus.ts): filtering. Stable-only pulse with an EMA, a 3 s rolling breathing amplitude for breath-hold detection, edge-triggered blinks with a 250 ms refractory period, a median-filtered lid with 3 degrees of hysteresis.
 - [`src/renderer/game/model.ts`](src/renderer/game/model.ts): the ghost movement rules. All constants live in [`tuning.ts`](src/renderer/game/tuning.ts).
 - [`src/renderer/app.ts`](src/renderer/app.ts): the state machine (consent, camera check, lid calibration, 60 s calm baseline, play, debrief).
 

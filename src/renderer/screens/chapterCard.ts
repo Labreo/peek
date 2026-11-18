@@ -12,7 +12,7 @@ export function showChapterCard(o: {
     <h1>${esc(o.chapter.title)}</h1>
     <p>${esc(o.chapter.rule)}</p>
     <p class="small">${o.chapter.clues.length} messages to find. Then look at it and steady yourself.</p>
-    <div class="row"><button class="primary" id="go">${o.retry ? 'Retry' : 'Enter'} <span class="kbd">Enter</span></button></div>
+    <div class="row"><button class="primary" id="go">${o.retry ? 'Retry' : 'Begin'} <span class="kbd">Enter</span></button></div>
   `);
   q(el, '#go').onclick = o.onGo;
   return {};
