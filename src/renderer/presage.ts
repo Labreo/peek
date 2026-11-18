@@ -113,6 +113,13 @@ export class Presage {
     });
     sdk.on('metrics', (buf) => this.onMetrics(buf));
 
+    // Camera unplugged mid-run: report it and treat it as a lost face so the game pauses.
+    this.stream.getVideoTracks()[0]?.addEventListener('ended', () => {
+      this.status.error = 'Camera disconnected.';
+      this.status.hint = 'Camera disconnected. Plug it back in.';
+      this.emit({ kind: 'face', t: this.now(), status: 'no_face' });
+    });
+    this.status.error = null;
     sdk.useMediaStream(this.stream);
     await sdk.start();
   }

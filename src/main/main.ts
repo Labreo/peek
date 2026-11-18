@@ -48,6 +48,7 @@ function createWindow(config: PeekConfig) {
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
+      autoplayPolicy: 'no-user-gesture-required', // replay mode starts audio without a click
     },
   });
   bindSmartSpectraIpc(win);

@@ -69,10 +69,14 @@ let screenCtl: { update?: (...a: never[]) => void; enter?: () => void; sync?: (s
 let baselineMs = 0;
 let baselineRec = new BaselineRecorder();
 let scareDone = false;
+let pausedMs = 0;        // wall time spent paused this run
+let pauseStart = 0;
+let cameraId: string | null = null;
 
 function onRaw(e: RawEvent) {
   bus.push(e);
-  if (state === 'PLAY' || state === 'PAUSED_NO_FACE') runEvents.push({ ...e, t: e.t - playStart });
+  // Recorded times skip paused stretches, so a replay plays back continuously.
+  if (state === 'PLAY') runEvents.push({ ...e, t: e.t - playStart - pausedMs });
 }
 
 function go(next: State) {
@@ -116,7 +120,9 @@ function go(next: State) {
       clear();
       break;
     case 'PAUSED_NO_FACE':
-      mount(`<h2>Paused</h2><p>The camera lost your face. Sit back in front of it and the game will continue.</p><p class="small" id="ph"></p>`);
+      pauseStart = performance.now();
+      mount(`<h2>Paused</h2><p>The camera lost your face. Sit back in front of it and the game will continue.</p><p class="small" id="ph"></p>
+        <p class="small">Camera unplugged? Plug it back in and press <span class="kbd">Enter</span>.</p>`);
       break;
     case 'WIN':
       clear();
@@ -173,7 +179,7 @@ async function startCameraCheck() {
     cams = await listCameras();
   }
   const saved = store.get('peek.camera');
-  let selected = cams.find((c) => c.deviceId === saved)?.deviceId ?? cams[0]?.deviceId ?? null;
+  let selected = cameraId = cams.find((c) => c.deviceId === saved)?.deviceId ?? cams[0]?.deviceId ?? null;
   const startCam = async (id: string | null) => {
     try {
       await presage!.start(id);
@@ -188,7 +194,7 @@ async function startCameraCheck() {
   screenCtl = showCameraCheck({
     cameras: cams, selected,
     lidNote: simLid ? (config.lidError ?? 'Lid sensor not available.') : null,
-    onCamera: (id) => { selected = id; store.set('peek.camera', id); void startCam(id); },
+    onCamera: (id) => { selected = cameraId = id; store.set('peek.camera', id); void startCam(id); },
     onContinue: () => go('CALIBRATE_LID'),
   });
   await startCam(selected);
@@ -202,6 +208,7 @@ function startPlay() {
   lastSampleT = -Infinity;
   simT = 0;
   acc = 0;
+  pausedMs = 0;
   outcome = 'none';
   scareDone = false;
   scene.lightsOn = 0;
@@ -247,7 +254,7 @@ function loop(now: number) {
       feeder?.feedUntil(simT + STEP_MS);
       frame = bus.tick(replay ? clock : Math.max(clock, now));
       if (state === 'PAUSED_NO_FACE') {
-        if (frame.face === 'ok') go('PLAY');
+        if (frame.face === 'ok') { pausedMs += now - pauseStart; go('PLAY'); }
         continue; // the game and the ghost freeze
       }
       if (!replay && frame.faceLostMs > TUNING.faceLostPauseMs) { go('PAUSED_NO_FACE'); continue; }
@@ -343,6 +350,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Enter') {
     if (state === 'CALIBRATE_LID') { e.preventDefault(); screenCtl?.enter?.(); }
     else if (state === 'INTRO') { e.preventDefault(); startPlay(); }
+    else if (state === 'PAUSED_NO_FACE' && presage) { e.preventDefault(); presage.status.error = null; void presage.start(cameraId).catch((err) => { presage!.status.error = String(err); }); }
   }
   // Developer shortcut: skip the 60 s baseline (debug mode only).
   if (e.code === 'KeyS' && config.debug && state === 'CALIBRATE_BASELINE') baselineMs = BASELINE_MS;
