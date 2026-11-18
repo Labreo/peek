@@ -2,12 +2,16 @@
 
 import { mount, q } from './mount';
 
-export function showIntro(o: { flashing: boolean; heart: boolean; replay: boolean; baselineBpm: number | null; onToggle: (k: 'flashing' | 'heart') => void; onStart: () => void }) {
+export function showIntro(o: {
+  flashing: boolean; heart: boolean; replay: boolean; baselineBpm: number | null;
+  chapters: number; startChapter: number; debug: boolean;
+  onToggle: (k: 'flashing' | 'heart') => void; onStart: () => void;
+}) {
   const el = mount(`
     <p class="title">PEEK</p>
-    <p><b>The Archivist only moves when you are not truly watching.</b></p>
+    <p><b>The Archivist only moves when you are not truly watching.</b> ${o.chapters} chapters, each deeper into the archive.</p>
     <ul>
-      <li><b>Lid open:</b> you are watching. It cannot move. But every <b>blink</b> lets it take a step.</li>
+      <li><b>Lid open:</b> you are watching. It cannot move. Every <b>blink</b> lets it take a step. Hold a calm, steady gaze and it slowly backs away.</li>
       <li><b>Tilt the lid down to squint.</b> Writing on the walls only shows when you squint. Find all 3 messages. While you squint, it creeps closer.</li>
       <li><b>Shut the lid</b> to close your eyes. You will not see it. It rushes in. Listen.</li>
       <li>When it is close, <b>hold your breath</b> and it loses you for a moment. Never more than 8 seconds, then breathe normally.</li>
@@ -19,6 +23,7 @@ export function showIntro(o: { flashing: boolean; heart: boolean; replay: boolea
       <button id="opt-flash">Flashing light: <b id="fv"></b> <span class="kbd">F</span></button>
       <button id="opt-heart">Heartbeat sound: <b id="hv"></b> <span class="kbd">M</span></button>
     </div>
+    ${o.debug ? `<p class="small">Debug: start at chapter <b>${o.startChapter}</b> (press 1 to ${o.chapters})</p>` : ''}
     <div class="row"><button class="primary" id="go">${o.replay ? 'Watch the recorded run' : 'Begin'} <span class="kbd">Enter</span></button></div>
   `);
   const sync = (s: { flashing: boolean; heart: boolean }) => {

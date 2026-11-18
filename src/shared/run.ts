@@ -3,8 +3,9 @@
 // events through the same SignalBus and game model, at a fixed 30 Hz step.
 
 import { SignalBus } from './signalBus';
-import type { Calibration, RawEvent, RunHeader } from './types';
+import type { Calibration, GameEvent, RawEvent, RunHeader } from './types';
 import { newGame, step, type GameState } from '../renderer/game/model';
+import { CHAPTERS, chapterTuning } from '../renderer/game/tuning';
 
 export const STEP_MS = 1000 / 30;
 
@@ -41,19 +42,51 @@ export class ReplayFeeder {
   get duration() { return this.events.length ? this.events[this.events.length - 1].t : 0; }
 }
 
-/** Headless run: same bus, same model, fixed step. Used by tests and to sanity check files. */
-export function simulateRun(run: Run, cal: Calibration = run.header.calibration): GameState {
+export interface SessionResult {
+  game: GameState;        // the last chapter attempt
+  cleared: number;        // chapters won
+  finished: boolean;      // the final chapter was won
+  events: GameEvent[];    // every chapter attempt's events, in order
+  timeS: number;          // total play time
+}
+
+/**
+ * What happens after a chapter attempt ends. Shared by the live game and the simulator:
+ * a win moves to the next chapter; a loss retries the same chapter.
+ */
+export function nextChapter(g: GameState): number | null {
+  if (g.phase === 'won') return g.chapter + 1 < CHAPTERS.length ? g.chapter + 1 : null;
+  if (g.phase === 'lost') return g.chapter;
+  return null;
+}
+
+/**
+ * Headless session: same bus, same model, fixed step. Chapters chain with no time gap
+ * (the live game does not record time spent on cards between chapters). A loss only
+ * continues if the recording continues, which means the player pressed Retry.
+ */
+export function simulateRun(run: Run, cal: Calibration = run.header.calibration): SessionResult {
   const bus = new SignalBus(cal);
   const feeder = new ReplayFeeder(run.events, bus);
-  const game = newGame();
+  let game = newGame(run.header.startChapter ?? 0);
+  const events: GameEvent[] = [];
+  let cleared = 0;
   let t = 0;
   const end = feeder.duration + 5000;
-  while (t < end && game.phase !== 'won' && game.phase !== 'lost') {
+  while (t < end) {
     t += STEP_MS;
     feeder.feedUntil(t);
     const f = bus.tick(t);
     if (f.faceLostMs > 3000) continue; // paused, same as the live game
-    step(game, f, STEP_MS / 1000, undefined, t);
+    step(game, f, STEP_MS / 1000, chapterTuning(game.chapter), t);
+    if (game.phase === 'won' || game.phase === 'lost') {
+      events.push(...game.events);
+      if (game.phase === 'won') cleared++;
+      const next = nextChapter(game);
+      if (next == null || feeder.done) return { game, cleared, finished: game.phase === 'won' && next == null, events, timeS: t / 1000 };
+      game = newGame(next);
+    }
   }
-  return game;
+  events.push(...game.events);
+  return { game, cleared, finished: false, events, timeS: t / 1000 };
 }

@@ -142,6 +142,78 @@ export class GameAudio {
     }
   }
 
+  private buzzGain: GainNode | null = null;
+  private projGain: GainNode | null = null;
+  private nextClick = 0;
+  private nextThud = 0;
+
+  /** Mains hum of a failing bulb. level 0..1. */
+  setBuzz(level: number) {
+    const c = this.ctx;
+    if (!this.buzzGain) {
+      this.buzzGain = c.createGain();
+      this.buzzGain.gain.value = 0;
+      const o = c.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.value = 100;
+      const f = c.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = 900;
+      f.Q.value = 2;
+      o.connect(f).connect(this.buzzGain).connect(this.master);
+      o.start();
+    }
+    this.buzzGain.gain.setTargetAtTime(level * 0.06, c.currentTime, 0.03);
+  }
+
+  /** The Vault's projector: a soft clatter at film speed. level 0..1. */
+  setProjector(level: number) {
+    const c = this.ctx;
+    if (!this.projGain) {
+      this.projGain = c.createGain();
+      this.projGain.connect(this.master);
+    }
+    this.projGain.gain.setTargetAtTime(level * 0.08, c.currentTime, 0.3);
+    if (level <= 0.01) return;
+    const now = c.currentTime;
+    if (this.nextClick < now) this.nextClick = now + 0.02;
+    while (this.nextClick < now + 0.12) {
+      const s = c.createBufferSource();
+      s.buffer = this.noise;
+      const hp = c.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 2500;
+      const e = c.createGain();
+      e.gain.setValueAtTime(0.5, this.nextClick);
+      e.gain.exponentialRampToValueAtTime(0.001, this.nextClick + 0.02);
+      s.connect(hp).connect(e).connect(this.projGain);
+      s.start(this.nextClick, Math.random(), 0.03);
+      this.nextClick += 1 / 18;
+    }
+  }
+
+  /** Something heavy falls somewhere in the stacks, now and then. */
+  ambientThuds(enabled: boolean) {
+    const c = this.ctx;
+    const now = c.currentTime;
+    if (!enabled) { this.nextThud = now + 8; return; }
+    if (this.nextThud === 0) this.nextThud = now + 10 + Math.random() * 15;
+    if (now < this.nextThud) return;
+    this.nextThud = now + 18 + Math.random() * 25;
+    const p = new PannerNode(c, { panningModel: 'HRTF', positionX: (Math.random() - 0.5) * 8, positionZ: -3 - Math.random() * 6 });
+    const s = c.createBufferSource();
+    s.buffer = this.noise;
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 220;
+    const e = c.createGain();
+    e.gain.setValueAtTime(0.0001, now);
+    e.gain.exponentialRampToValueAtTime(0.9, now + 0.01);
+    e.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+    s.connect(lp).connect(e).connect(p).connect(this.master);
+    s.start(now, Math.random(), 0.7);
+  }
+
   /** Lurch sound on a blink step. */
   lurch() {
     const c = this.ctx;
@@ -194,6 +266,8 @@ export class GameAudio {
   silenceAll() {
     this.setAmbience(0);
     this.setRain(0);
+    this.setBuzz(0);
+    this.setProjector(0);
     this.stepBus.gain.setTargetAtTime(0, this.ctx.currentTime, 0.2);
   }
   unsilence() { this.stepBus.gain.setTargetAtTime(1, this.ctx.currentTime, 0.2); }

@@ -10,14 +10,24 @@ Built for the [Presage SmartSpectra SDK Challenge on DEV](https://dev.to/challen
 
 > This is a game, not a health tool. It does not tell you anything about your health.
 
+## Three chapters
+
+| Chapter | New twist | Messages |
+|---|---|---|
+| 1. The Reading Room | Learn the rules: watch, blink, squint, shut, breathe | 3 |
+| 2. The Stacks | The lamp fails on a schedule. The bulb buzzes first. In the dark you cannot watch it | 4 |
+| 3. The Vault | It moves to a new spot every time you shut your eyes. A projector rattles at the far end | 5 |
+
+Each chapter ends the same way: open your eyes, look at it, and steady your pulse until the lights come on. The messages tell the story of the Archivist. If it catches you, retry the chapter. A full session (calibration plus three chapters) takes about 10 minutes.
+
 ## How your body drives the game
 
 | Signal | Source | What it does in the game |
 |---|---|---|
-| Lid angle | MacBook hinge sensor (HID) | Open = watching, the ghost is frozen. Tilt down = squint: writing on the walls appears, but the ghost creeps. Shut = eyes closed: black screen, it rushes in |
+| Lid angle | MacBook hinge sensor (HID) | Open = watching, the ghost is frozen, and a calm unbroken gaze slowly pushes it back. Tilt down = squint: writing on the walls appears, but the ghost creeps. Shut = eyes closed: black screen, it rushes in |
 | Blink | Presage `BLINKING` | Each blink while watching lets the ghost lurch one step |
 | Pulse | Presage `PULSE_RATE` | The further above your calm baseline, the faster it moves. To win you must bring it back down |
-| Breathing | Presage breathing trace | Hold your breath when it is close and it loses you (capped at 8 s, then it leaves anyway) |
+| Breathing | Presage breathing trace | Hold your breath when it is close and it loses you (about 8 s in total, then it leaves anyway) |
 | Expression | Presage `EXPRESSIONS` | A fearful or surprised face makes the desk lamp stutter. Cosmetic only, it never changes the rules |
 
 ## Requirements
@@ -50,7 +60,7 @@ macOS asks for camera permission the first time. If you launch from a terminal, 
 npm run replay                       # watch a recorded run: no camera, no key, no lid sensor needed
 npm run replay -- path/to/run.jsonl  # replay any saved run file
 npm run sim                          # play with the arrow keys as the lid
-npm run dev                          # start with the debug overlay on
+npm run dev                          # debug overlay on; keys 1 to 3 on the intro pick the starting chapter
 npm test                             # unit tests (signal bus, game model, replay determinism)
 ```
 

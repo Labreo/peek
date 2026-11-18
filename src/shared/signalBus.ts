@@ -6,9 +6,9 @@ import type { Calibration, FaceStatus, LidZone, RawEvent, SignalFrame } from './
 
 export const BUS = {
   pulseAlpha: 0.3,          // EMA on stable pulse values
-  breathWindowMs: 4000,     // rolling window for breathing amplitude
-  holdRatio: 0.25,          // holding = amplitude below 25% of normal
-  holdMinMs: 2500,          // ...for at least this long
+  breathWindowMs: 3000,     // rolling window for breathing amplitude
+  holdRatio: 0.2,           // holding = amplitude below 20% of normal
+  holdMinMs: 1000,          // ...for at least this long (detection lands about 4 s into a hold)
   breathStaleMs: 2500,      // no trace samples for this long = unknown, not holding
   blinkRefractoryMs: 250,
   lidMedianN: 5,

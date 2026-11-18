@@ -18,11 +18,13 @@ Rules: keep the headings below in this exact order. No em dashes. No health clai
 
 TODO: 10-second GIF (squint, pulse climbing, blink, lurch, lid slam).
 
-Close the lid partway to squint at a dark records room. Shut it to hide. A tall figure called the Archivist stands at the end of the aisle. It cannot move while you watch it. But it moves when you blink, it rushes in when you shut your eyes, and it gets faster as your pulse climbs. The only way out is to find three messages scrawled on the walls, then open your eyes, look straight at it, and calm down.
+Close the lid partway to squint at a dark archive. Shut it to hide. A tall figure called the Archivist stands at the end of the aisle. It cannot move while you watch it. But it moves when you blink, it rushes in when you shut your eyes, and it gets faster as your pulse climbs. The only way out is to find three messages scrawled on the walls, then open your eyes, look straight at it, and calm down.
 
 Horror is about not wanting to look. I wanted a game where *not looking* is a physical act, so your hands do it. The laptop hinge has an angle sensor on M2 and newer MacBooks, and it turned out to make a very convincing eyelid.
 
 The obvious problem: if the lid is your eyelid, the laptop camera goes blind the moment you shut it. So the camera moved. My Pixel 8a sits propped next to the laptop in Android's USB webcam mode, and that is the eye that watches you. Presage's SmartSpectra SDK reads pulse, breathing and blinks from it, on the Mac, while the lid is closed.
+
+The game has three chapters, each deeper into the archive: the Reading Room teaches the rules, in the Stacks the lamp keeps dying (and in the dark you cannot watch it), and in the Vault it moves somewhere new every time you close your eyes. The twelve messages on the walls tell the Archivist's story.
 
 **Inspiration and what is new.** Biofeedback horror is not new: [Nevermind](https://store.steampowered.com/app/342260/Nevermind/) (2015) gets harder as your heart rate rises, and it is the reason I knew this genre could work. Sam Henri Gold's [LidAngleSensor](https://github.com/samhenrigold/LidAngleSensor) showed the hinge sensor could be read at all (and made it creak like a door). What I have not seen before is the combination: the hinge as eyelids, a blink as the monster's movement trigger, holding your breath to hide, and a phone as the sensing eye so you can close the laptop and still be measured.
 
@@ -60,7 +62,7 @@ Four live inputs, each with its own job:
 | Breathing | Presage breathing trace (`upperTrace`) | Hold your breath when it is within 3 m and it loses you and drifts back | Amplitude over a rolling 4 s window must drop below 25% of your calm amplitude for 2.5 s. Capped at 8 s |
 | Expression (cosmetic) | Presage `EXPRESSIONS` | A fearful or surprised face makes the desk lamp stutter | Purely visual, never changes the rules |
 
-**The ghost model in plain words.** It starts 10 m away. While your lid is open and you are not blinking, it does not move at all. While you squint, it creeps at 5 cm per second, plus up to 15 more cm per second if your pulse is up. While your eyes are shut, it moves at 40 to 80 cm per second depending on your pulse. Each blink is an instant half-metre step. If it is close and you hold your breath, it backs off. It reaches you at 0.8 m.
+**The ghost model in plain words.** It starts 10 m away. While your lid is open and you are not blinking, it does not move toward you, and if you hold a calm, unbroken gaze it slowly backs away. While you squint, it creeps at 5 cm per second, plus up to 15 more cm per second if your pulse is up. While your eyes are shut, it moves at 40 to 80 cm per second depending on your pulse. Each blink is an instant 25 cm step. If it is close and you hold your breath, it backs off. It reaches you at 0.8 m.
 
 That creates the tension: you need to squint to read the clues, but squinting lets it creep. Shutting your eyes feels safe and is the most dangerous thing you can do. And the scarier it gets, the faster your pulse, the faster it moves.
 

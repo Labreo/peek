@@ -61,6 +61,8 @@ export interface RunHeader {
   version: string;
   createdAt: string;
   source: 'live' | 'synthetic';
+  /** Chapter the recording starts in (default 0). */
+  startChapter?: number;
   calibration: Calibration;
   note?: string;
 }
@@ -70,7 +72,9 @@ export type GameEvent =
   | { kind: 'shut'; t: number }
   | { kind: 'blinkStep'; t: number }
   | { kind: 'breathHide'; t: number }
-  | { kind: 'clue'; t: number; index: number }
-  | { kind: 'win'; t: number }
-  | { kind: 'lose'; t: number }
+  | { kind: 'blackout'; t: number }
+  | { kind: 'clue'; t: number; index: number; chapter?: number }
+  | { kind: 'chapter'; t: number; chapter: number }
+  | { kind: 'win'; t: number; chapter?: number }
+  | { kind: 'lose'; t: number; chapter?: number }
   | { kind: 'panic'; t: number };

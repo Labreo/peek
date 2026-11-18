@@ -58,7 +58,7 @@ describe('win and lose', () => {
 
   it('wins after 3 clues and 8 calm seconds', () => {
     const s = newGame();
-    for (let i = 0; i < 100 && s.phase === 'clues'; i++) step(s, frame({ lidZone: 'squint', squint: 0.6 }), 0.1);
+    for (let i = 0; i < 300 && s.phase === 'clues'; i++) step(s, frame({ lidZone: 'squint', squint: 0.6 }), 0.1);
     expect(s.cluesFound).toBe(3);
     expect(s.phase).toBe('steady');
     for (let i = 0; i < 100 && s.phase === 'steady'; i++) step(s, frame({ pulseDelta: 2 }), 0.1);
@@ -69,5 +69,52 @@ describe('win and lose', () => {
     const s = newGame(); s.phase = 'steady';
     for (let i = 0; i < 200; i++) step(s, frame({ pulseDelta: 10 }), 0.1);
     expect(s.phase).toBe('steady');
+  });
+});
+
+describe('chapters', () => {
+  it('every chapter has clue spots and its clue count matches', async () => {
+    const { CHAPTERS, chapterTuning } = await import('../src/renderer/game/tuning');
+    CHAPTERS.forEach((c, i) => expect(chapterTuning(i).clueCount).toBe(c.clues.length));
+  });
+
+  it('a calm, unbroken gaze pushes it back; a raised pulse does not', () => {
+    const calm = newGame(); calm.distance = 5;
+    const tense = newGame(); tense.distance = 5;
+    for (let i = 0; i < 50; i++) step(calm, frame({ pulseDelta: 2 }), 0.1);
+    for (let i = 0; i < 50; i++) step(tense, frame({ pulseDelta: 18 }), 0.1);
+    expect(calm.distance).toBeGreaterThan(5.3);
+    expect(tense.distance).toBe(5);
+  });
+
+  it('lamp blackouts follow a fixed schedule and let it creep even while you watch', async () => {
+    const { blackoutAt } = await import('../src/renderer/game/model');
+    const { chapterTuning } = await import('../src/renderer/game/tuning');
+    const tune = chapterTuning(1);
+    expect(blackoutAt(tune.blackoutFirstS - tune.blackoutWarnS + 0.1, tune).warn).toBe(true);
+    expect(blackoutAt(tune.blackoutFirstS + 0.5, tune).dark).toBe(true);
+    expect(blackoutAt(tune.blackoutFirstS + tune.blackoutDurS + 0.5, tune).dark).toBe(false);
+    const s = newGame(1);
+    s.t = tune.blackoutFirstS + 0.2;
+    const d0 = s.distance;
+    step(s, frame(), 0.5, tune);
+    expect(s.blackout).toBe(true);
+    expect(s.distance).toBeLessThan(d0);
+  });
+
+  it('in the Vault it relocates each time you shut your eyes', () => {
+    const s = newGame(2);
+    step(s, frame({ lidZone: 'shut' }), 0.1);
+    const a = s.side;
+    step(s, frame(), 0.1);
+    step(s, frame({ lidZone: 'shut' }), 0.1);
+    expect(s.side).not.toBe(a);
+  });
+
+  it('breath hiding is capped so the whole hold stays near 8 s', () => {
+    const s = newGame(); s.distance = 2;
+    for (let i = 0; i < 50; i++) step(s, frame({ breathHolding: true }), 0.1);
+    expect(s.holdCapped).toBe(true);
+    expect(s.breathPrompt).toBe(true);
   });
 });
