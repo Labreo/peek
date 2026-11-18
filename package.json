@@ -12,7 +12,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "spike:presage": "node scripts/spike-presage.cjs",
-    "make:sample": "node scripts/make-sample-run.mjs"
+    "make:sample": "esbuild scripts/make-sample-run.ts --bundle --platform=node --format=cjs --outfile=dist/make-sample-run.cjs --log-level=warning && node dist/make-sample-run.cjs"
   },
   "license": "MIT",
   "type": "commonjs",

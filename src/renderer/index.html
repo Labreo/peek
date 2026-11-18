@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: mediastream:; connect-src 'self'" />
+  <title>Peek</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div id="lids" aria-hidden="true"><div class="lid top"></div><div class="lid bottom"></div></div>
+  <div id="vignette" aria-hidden="true"></div>
+  <div id="shut" aria-hidden="true"><div id="shut-text">eyes shut</div></div>
+  <div id="flash" aria-hidden="true"></div>
+
+  <div id="play-ui" hidden>
+    <div id="objective"></div>
+    <div id="meter"><div id="meter-fill"></div></div>
+    <div id="prompt"></div>
+  </div>
+
+  <div id="screen"></div>
+
+  <div id="cam-badge" hidden><span class="dot"></span> camera on <video id="preview" muted playsinline></video></div>
+  <div id="replay-badge" hidden>REPLAY</div>
+  <div id="hud" hidden></div>
+  <div id="hint-keys">Space or Esc: stop &nbsp; D: debug</div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
