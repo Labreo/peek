@@ -10,7 +10,7 @@ export function showConsent(onAgree: () => void, onQuit: () => void) {
     <ul>
       <li>Everything is processed on this computer by the Presage SmartSpectra SDK. No video is recorded or saved.</li>
       <li>Your readings are kept in memory during the session and cleared when you quit, unless you choose to save a run file to your own computer.</li>
-      <li>Nothing is uploaded by Peek. Presage's optional diagnostic telemetry is turned off. The SDK still contacts Presage to check the API key and count usage.</li>
+      <li>Nothing is uploaded by Peek. Presage's optional SDK telemetry is turned off. The SDK still contacts Presage to check the API key and count usage.</li>
       <li>Only the person at the computer is measured. Peek is not designed to measure anyone else.</li>
       <li>This is a game, not a health tool. If you feel unwell or too scared, press <span class="kbd">Space</span> or <span class="kbd">Esc</span> to stop at any time.</li>
     </ul>

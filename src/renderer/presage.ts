@@ -14,7 +14,15 @@ import {
 import { decodeMetrics } from '@smartspectra/node-sdk/messages';
 import type { FaceStatus, RawEvent } from '../shared/types';
 
-export const REQUESTED_METRICS = [...breathingMetrics, MetricType.PULSE_RATE, MetricType.BLINKING];
+// EXPRESSIONS drives a cosmetic effect only (P2). Set to false if the frame rate suffers.
+export const USE_EXPRESSIONS = true;
+export const REQUESTED_METRICS = [
+  ...breathingMetrics, MetricType.PULSE_RATE, MetricType.BLINKING,
+  ...(USE_EXPRESSIONS ? [MetricType.EXPRESSIONS] : []),
+];
+// ExpressionType values from the SDK protobuf.
+const EXPR_FEAR = 4;
+const EXPR_SURPRISE = 8;
 
 const VALIDATION_NAMES: Record<number, string> = Object.fromEntries(
   Object.entries(ValidationCode).map(([k, v]) => [v as number, k.replace(/^k/, '')]),
@@ -94,7 +102,7 @@ export class Presage {
     const sdk = new SmartSpectraSDK({
       apiKey: this.apiKey,
       requestedMetrics: REQUESTED_METRICS,
-      enableTelemetry: false, // Peek opts out of Presage's diagnostic telemetry.
+      enableTelemetry: false, // Peek opts out of Presage's optional SDK telemetry.
     });
     this.sdk = sdk;
     const procNames = Object.fromEntries(Object.entries(ProcessingStatus).map(([k, v]) => [v, k.replace(/^k/, '')]));
@@ -146,6 +154,14 @@ export class Presage {
     }
     for (const b of m.breathing?.upperTrace ?? []) {
       this.emit({ kind: 'breath', t: at(b.timestamp), value: b.value ?? 0 });
+    }
+    for (const x of m.face?.expression ?? []) {
+      let fear = 0, surprise = 0;
+      for (const sc of x.scores ?? []) {
+        if (sc.type === EXPR_FEAR) fear = sc.confidence ?? 0;
+        if (sc.type === EXPR_SURPRISE) surprise = sc.confidence ?? 0;
+      }
+      this.emit({ kind: 'expression', t: at(x.timestamp), fear, surprise });
     }
     for (const b of m.face?.blinking ?? []) {
       this.emit({ kind: 'blink', t: at(b.timestamp), detected: !!b.detected });

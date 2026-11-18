@@ -93,3 +93,16 @@ describe('baseline', () => {
     expect(b.result().baselineBpm).toBe(71.5);
   });
 });
+
+describe('startle (expressions)', () => {
+  it('fires once when fear or surprise crosses the threshold, then decays', () => {
+    const bus = new SignalBus(cal);
+    bus.push({ kind: 'expression', t: 0, fear: 0.1, surprise: 0.2 });
+    expect(bus.tick(0).startleEvent).toBe(false);
+    bus.push({ kind: 'expression', t: 100, fear: 0.7, surprise: 0.1 });
+    bus.push({ kind: 'expression', t: 200, fear: 0.8, surprise: 0.1 });
+    expect(bus.tick(200).startleEvent).toBe(true);
+    expect(bus.tick(230).startleEvent).toBe(false);
+    expect(bus.tick(2000).startle).toBeLessThan(0.1);
+  });
+});

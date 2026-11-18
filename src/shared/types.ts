@@ -15,7 +15,8 @@ export type RawEvent =
   | { kind: 'breathRate'; t: number; bpm: number; stable: boolean }
   | { kind: 'blink'; t: number; detected: boolean }
   | { kind: 'face'; t: number; status: FaceStatus; code?: number }
-  | { kind: 'lid'; t: number; deg: number };
+  | { kind: 'lid'; t: number; deg: number }
+  | { kind: 'expression'; t: number; fear: number; surprise: number };
 
 export interface Calibration {
   openDeg: number;        // the angle the player normally uses
@@ -39,6 +40,8 @@ export interface SignalFrame {
   blinkCount: number;
   face: FaceStatus;
   faceLostMs: number;        // how long the face status has not been 'ok'
+  startle: number;           // max of fear and surprise expression scores, decays over ~1 s
+  startleEvent: boolean;     // edge-triggered when startle crosses the threshold
 }
 
 export type LidSource = 'sensor' | 'simulator';

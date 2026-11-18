@@ -13,6 +13,8 @@ export const BUS = {
   blinkRefractoryMs: 250,
   lidMedianN: 5,
   lidHysteresisDeg: 3,
+  startleThreshold: 0.5,
+  startleDecayPerS: 1.2,
   openMarginDeg: 10,        // open zone = openDeg - 10 and up
 };
 
@@ -72,6 +74,11 @@ export class SignalBus {
   private pendingBlinks = 0;
   private blinkCount = 0;
 
+  private startle = 0;
+  private startleT = 0;
+  private startleWasHigh = false;
+  private pendingStartle = false;
+
   private face: FaceStatus = 'warming_up';
   private faceNotOkSince: number | null = null;
 
@@ -118,6 +125,15 @@ export class SignalBus {
         }
         break;
       }
+      case 'expression': {
+        const v = Math.max(e.fear, e.surprise);
+        this.startle = Math.max(this.decayedStartle(e.t), v);
+        this.startleT = e.t;
+        const high = this.startle >= BUS.startleThreshold;
+        if (high && !this.startleWasHigh) this.pendingStartle = true;
+        this.startleWasHigh = high;
+        break;
+      }
       case 'face':
         // Stay in warming_up until the first stable pulse, unless something is clearly wrong.
         if (this.face === 'warming_up' && e.status === 'ok') break;
@@ -130,6 +146,10 @@ export class SignalBus {
     if (s === 'ok') this.faceNotOkSince = null;
     else if (this.faceNotOkSince == null) this.faceNotOkSince = t;
     this.face = s;
+  }
+
+  private decayedStartle(now: number): number {
+    return Math.max(0, this.startle - (BUS.startleDecayPerS * Math.max(0, now - this.startleT)) / 1000);
   }
 
   /** Current breathing amplitude over the rolling window, or null if unknown. */
@@ -155,6 +175,8 @@ export class SignalBus {
       this.lowSince = null;
     }
 
+    const startleEvent = this.pendingStartle;
+    this.pendingStartle = false;
     const blinkEvent = this.pendingBlinks > 0;
     this.pendingBlinks = 0;
 
@@ -174,6 +196,8 @@ export class SignalBus {
       blinkCount: this.blinkCount,
       face: this.face,
       faceLostMs: this.faceNotOkSince == null ? 0 : now - this.faceNotOkSince,
+      startle: this.decayedStartle(now),
+      startleEvent,
     };
   }
 

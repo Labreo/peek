@@ -10,8 +10,8 @@ export const CLUES = [
 ];
 
 const CLUE_SPOTS: { pos: [number, number, number]; rotY: number }[] = [
-  { pos: [-0.98, 1.5, -3.4], rotY: 0.75 },
-  { pos: [0.98, 1.2, -4.6], rotY: -0.75 },
+  { pos: [-0.72, 1.55, -3.6], rotY: 0.55 },
+  { pos: [0.72, 1.25, -4.8], rotY: -0.55 },
   { pos: [0, 2.15, -12.9], rotY: 0 },
 ];
 
@@ -116,6 +116,12 @@ export class RoomScene {
   private flickerLevel = 1;
   lightsOn = 0; // 0..1, the win ending
   flashing = true;
+
+  /** A startled face makes the lamp stutter for a moment. Cosmetic only. */
+  stutter() {
+    this.flickerLevel = this.flashing ? 0.05 : 0.6;
+    this.flickerT = 0.35;
+  }
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });

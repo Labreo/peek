@@ -5,7 +5,7 @@ import type { SignalFrame } from '../src/shared/types';
 
 const frame = (o: Partial<SignalFrame> = {}): SignalFrame => ({
   t: 0, lidDeg: 110, lidZone: 'open', squint: 0, pulseBpm: 70, pulseDelta: 0, breathRate: 14,
-  breathAmp: 1, breathHolding: false, blinkEvent: false, blinkCount: 0, face: 'ok', faceLostMs: 0, ...o,
+  breathAmp: 1, breathHolding: false, blinkEvent: false, blinkCount: 0, face: 'ok', faceLostMs: 0, startle: 0, startleEvent: false, ...o,
 });
 
 describe('ghost movement', () => {

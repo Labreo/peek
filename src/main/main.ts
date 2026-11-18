@@ -38,9 +38,11 @@ let win: BrowserWindow | null = null;
 let lid: LidReader | null = null;
 
 function createWindow(config: PeekConfig) {
+  // Dev aid: PEEK_SIZE=960x600 sets the window size (for recording GIFs).
+  const [w, h] = (process.env.PEEK_SIZE || '1280x800').split('x').map(Number);
   win = new BrowserWindow({
-    width: 1280,
-    height: 800,
+    width: w || 1280,
+    height: h || 800,
     backgroundColor: '#000000',
     title: 'Peek',
     webPreferences: {
@@ -55,7 +57,7 @@ function createWindow(config: PeekConfig) {
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.loadFile(join(__dirname, 'index.html'));
-  // Dev aid: PEEK_SNAP=<dir> saves a screenshot of the window every 3 s.
+  // Dev aid: PEEK_SNAP=<dir> saves a screenshot every PEEK_SNAP_MS (default 3000 ms).
   const snapDir = process.env.PEEK_SNAP;
   if (snapDir) {
     win.webContents.on('console-message', (e) => console.log('[renderer]', (e as unknown as { message: string }).message));
@@ -63,7 +65,7 @@ function createWindow(config: PeekConfig) {
     setInterval(async () => {
       const img = await win?.webContents.capturePage();
       if (img) writeFileSync(join(snapDir, `snap-${String(n++).padStart(3, '0')}.png`), img.toPNG());
-    }, 3000);
+    }, Number(process.env.PEEK_SNAP_MS) || 3000);
   }
   if (flag('--devtools')) win.webContents.openDevTools({ mode: 'detach' });
 

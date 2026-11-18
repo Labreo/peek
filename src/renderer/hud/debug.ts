@@ -17,7 +17,7 @@ export class DebugHud {
 
   constructor(el: HTMLElement) {
     this.el = el;
-    el.innerHTML = '<div class="title">PEEK DEBUG &middot; PRESAGE LIVE</div><div class="b"></div><canvas width="600" height="80"></canvas>';
+    el.innerHTML = '<div class="title">PEEK DEBUG</div><div class="b"></div><canvas width="600" height="80"></canvas>';
     this.body = el.querySelector('.b')!;
     this.spark = el.querySelector('canvas')!;
   }
@@ -36,6 +36,7 @@ export class DebugHud {
     if (now - this.fpsT >= 1000) { this.fps = (this.frames * 1000) / (now - this.fpsT); this.frames = 0; this.fpsT = now; }
     if (!this.visible) return;
     const p = o.presage;
+    (this.el.querySelector('.title') as HTMLElement).innerHTML = p ? 'PEEK DEBUG &middot; PRESAGE LIVE' : 'PEEK DEBUG &middot; RECORDED RUN';
     const rows: [string, string, string?][] = [
       ['state', o.state],
       ['lid angle', f ? `${fmt(f.lidDeg, 0)}&deg; ${f.lidZone.toUpperCase()}` : '--', o.lidSource],
@@ -47,6 +48,7 @@ export class DebugHud {
       ['breath hold', f ? (f.breathHolding ? `HOLDING ${fmt(o.holdS ?? 0)}s` : 'no') : '--'],
       ['blinks', f ? `${f.blinkCount}${f.blinkEvent ? ' &#9679;' : ''}` : '--', 'presage'],
       ['face', f ? f.face : '--', 'presage'],
+      ['startle', f ? `${fmt(f.startle, 2)}${f.startleEvent ? ' &#9679;' : ''}` : '--', 'presage expr'],
       ['sdk', p ? `${p.processingName} &middot; ${p.packets} pkts` : 'replay'],
       ['ghost', o.distance != null ? `${fmt(o.distance, 2)} m &middot; v ${fmt(o.velocity, 2)}` : '--'],
       ['fps', fmt(this.fps, 0)],

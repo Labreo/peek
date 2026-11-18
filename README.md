@@ -8,7 +8,7 @@ Your phone, propped beside the laptop, is the eye that watches you. The [Presage
 
 Built for the [Presage SmartSpectra SDK Challenge on DEV](https://dev.to/challenges/presage-2026-11-04).
 
-> This is a game, not a health tool. It does not diagnose or measure anything about your health.
+> This is a game, not a health tool. It does not tell you anything about your health.
 
 ## How your body drives the game
 
@@ -18,6 +18,7 @@ Built for the [Presage SmartSpectra SDK Challenge on DEV](https://dev.to/challen
 | Blink | Presage `BLINKING` | Each blink while watching lets the ghost lurch one step |
 | Pulse | Presage `PULSE_RATE` | The further above your calm baseline, the faster it moves. To win you must bring it back down |
 | Breathing | Presage breathing trace | Hold your breath when it is close and it loses you (capped at 8 s, then it leaves anyway) |
+| Expression | Presage `EXPRESSIONS` | A fearful or surprised face makes the desk lamp stutter. Cosmetic only, it never changes the rules |
 
 ## Requirements
 
@@ -51,6 +52,14 @@ npm run replay -- path/to/run.jsonl  # replay any saved run file
 npm run sim                          # play with the arrow keys as the lid
 npm run dev                          # start with the debug overlay on
 npm test                             # unit tests (signal bus, game model, replay determinism)
+```
+
+### Recording GIFs and screenshots
+
+```bash
+mkdir -p /tmp/peek-frames
+PEEK_SIZE=960x600 PEEK_SNAP_MS=100 PEEK_SNAP=/tmp/peek-frames npm run replay -- path/to/run.jsonl
+scripts/make-gif.sh /tmp/peek-frames docs/media/squint.gif 100 90 10   # first frame, frame count, fps
 ```
 
 ### Keys
@@ -89,7 +98,7 @@ Before play you calibrate your lid (your usual open angle and your squint floor)
 - **Sharing:** none. Peek uploads nothing.
 - **Retention:** cleared when you quit. A run file is only written if you press "Save run file" on the debrief screen; it goes to `~/Documents/Peek/runs/` on your own computer.
 - **Deletion:** quitting clears memory. "Delete my data" on the debrief screen clears this session's readings and deletes every run file Peek created.
-- **SDK telemetry:** Presage's diagnostic telemetry is turned off (`enableTelemetry: false`). Per Presage's [Telemetry and Privacy doc](https://github.com/Presage-Security/SmartSpectra/blob/main/docs/telemetry-and-privacy.md), when disabled "the SDK starts no telemetry session and transmits nothing" for telemetry. The SDK still contacts Presage's servers to authenticate the API key.
+- **SDK telemetry:** Presage's optional SDK telemetry is turned off (`enableTelemetry: false`). Per Presage's [Telemetry and Privacy doc](https://github.com/Presage-Security/SmartSpectra/blob/main/docs/telemetry-and-privacy.md), when disabled "the SDK starts no telemetry session and transmits nothing" for telemetry. The SDK still contacts Presage's servers to authenticate the API key.
 - **AI services:** none.
 - **Who is measured:** only the person at the computer. Peek is not designed to measure anyone else.
 

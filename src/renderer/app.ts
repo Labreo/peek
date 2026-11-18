@@ -262,6 +262,7 @@ function loop(now: number) {
       const before = game.distance;
       step(game, frame, STEP_MS / 1000, TUNING, clock);
       if (frame.blinkEvent && frame.lidZone !== 'shut' && game.distance < before) audio?.lurch();
+      if (frame.startleEvent && frame.lidZone !== 'shut') scene.stutter();
       if (game.events.length && game.events[game.events.length - 1].kind === 'clue' && game.events[game.events.length - 1].t === clock) audio?.chime();
       if (clock - lastSampleT >= 250) {
         lastSampleT = clock;
