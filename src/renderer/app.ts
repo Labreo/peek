@@ -363,6 +363,7 @@ async function bootReplay() {
 
 async function boot() {
   config = await window.peek.config();
+  console.log('[peek] presage bridge:', typeof (window as unknown as { __smartspectraBridge?: unknown }).__smartspectraBridge, 'lid:', config.lidSource);
   scene.flashing = flashing;
   hud.toggle(config.debug);
   simLid = config.lidSource === 'simulator';
