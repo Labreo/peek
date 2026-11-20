@@ -1,5 +1,7 @@
 # Peek
 
+[![CI](https://github.com/Labreo/peek/actions/workflows/ci.yml/badge.svg)](https://github.com/Labreo/peek/actions/workflows/ci.yml) ![macOS](https://img.shields.io/badge/platform-macOS-lightgrey) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+
 **A horror game where your MacBook lid is your eyelids.**
 
 Close the lid partway to squint at the room, or shut it to hide. A ghost, the Archivist, moves when you blink, rushes in when you shut your eyes, and gets faster as your pulse climbs. The only way out is to look at it and calm down.
@@ -136,4 +138,6 @@ See [CREDITS.md](CREDITS.md). Inspired by *Nevermind* (biofeedback horror) and S
 
 ## License
 
-MIT for Peek's own code. The SmartSpectra SDK is under Presage's own license.
+[MIT](LICENSE) for Peek's own code. The SmartSpectra SDK is installed from npm under Presage's own license and is not part of this repository.
+
+See [SECURITY.md](SECURITY.md) for how keys and data are handled, and [docs/demo-video.md](docs/demo-video.md) for filming a demo.
