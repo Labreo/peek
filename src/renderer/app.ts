@@ -14,6 +14,7 @@ import { newGame, step, type GameState } from './game/model';
 import { RoomScene } from './game/scene';
 import { CHAPTERS, chapterTuning, TUNING } from './game/tuning';
 import { DebugHud } from './hud/debug';
+import { PresenterView } from './hud/presenter';
 import { listCameras, Presage } from './presage';
 import { showBaseline, BASELINE_MAX_MS, BASELINE_MS } from './screens/baseline';
 import { showCalibrateLid } from './screens/calibrateLid';
@@ -44,6 +45,7 @@ let presage: Presage | null = null;
 let audio: GameAudio | null = null;
 const scene = new RoomScene($('gl') as HTMLCanvasElement);
 const hud = new DebugHud($('hud'));
+const presenter = new PresenterView($('presenter'));
 let frame: SignalFrame = bus.tick(performance.now());
 
 // Lid simulator (arrow keys) when there is no sensor.
@@ -413,6 +415,12 @@ function loop(now: number) {
     }
   }
 
+  presenter.setStream(presage?.stream ?? null);
+  presenter.update(frame, {
+    hasCamera: !!presage?.stream,
+    label: playing && game.blackout ? 'LAMP DIED' : state === 'PAUSED_NO_FACE' ? 'FACE LOST' : null,
+  });
+
   hud.update(frame, {
     presage: presage?.status ?? null, lidSource: replay ? 'replay' : simLid ? 'keys' : 'hinge', distance: game.distance,
     velocity: game.velocity, state: `${state} ch${chapterIdx + 1}${game.blackout ? ' DARK' : ''}`, trace: bus.breathTrace(),
@@ -427,6 +435,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'Escape') { e.preventDefault(); panic(); return; }
   keysDown.add(e.code);
   if (e.code === 'KeyD' && !e.metaKey) hud.toggle();
+  if (e.code === 'KeyV' && !e.metaKey) presenter.toggle();
   if (e.code === 'KeyF' && state === 'INTRO') toggleOption('flashing');
   if (e.code === 'KeyM') { if (state === 'INTRO') toggleOption('heart'); else { heartOn = !heartOn; store.set('peek.heart', heartOn ? 'on' : 'off'); } }
   // Debug: pick the starting chapter on the intro screen.
@@ -464,6 +473,7 @@ async function boot() {
   console.log('[peek] presage bridge:', typeof (window as unknown as { __smartspectraBridge?: unknown }).__smartspectraBridge, 'lid:', config.lidSource);
   scene.flashing = flashing;
   hud.toggle(config.debug);
+  presenter.toggle(config.presenter);
   simLid = config.lidSource === 'simulator';
   const savedLid = store.get('peek.lidcal');
   if (savedLid) { try { cal = { ...cal, ...JSON.parse(savedLid) }; bus.setCalibration(cal); } catch { /* ignore */ } }

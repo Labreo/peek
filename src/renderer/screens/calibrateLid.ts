@@ -9,6 +9,7 @@ export function showCalibrateLid(onDone: (openDeg: number, squintFloorDeg: numbe
     <div class="lidbar"><div class="fill" id="fill"></div><div class="mark" id="mark" hidden></div></div>
     <p class="big" id="deg">--&deg;</p>
     <p class="small" id="note"></p>
+    <p class="small status-bad">Never close the lid all the way: the Mac goes to sleep. "Eyes shut" is anywhere below your squint angle.</p>
   `);
   let open: number | null = null;
   let still: { since: number; deg: number } | null = null;

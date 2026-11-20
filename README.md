@@ -60,6 +60,7 @@ macOS asks for camera permission the first time. If you launch from a terminal, 
 npm run replay                       # watch a recorded run: no camera, no key, no lid sensor needed
 npm run replay -- path/to/run.jsonl  # replay any saved run file
 npm run sim                          # play with the arrow keys as the lid
+npm run demo                         # presenter view + debug overlay on, for recording demos
 npm run dev                          # debug overlay on; keys 1 to 3 on the intro pick the starting chapter
 npm test                             # unit tests (signal bus, game model, replay determinism)
 ```
@@ -72,10 +73,13 @@ PEEK_SIZE=960x600 PEEK_SNAP_MS=100 PEEK_SNAP=/tmp/peek-frames npm run replay -- 
 scripts/make-gif.sh /tmp/peek-frames docs/media/squint.gif 100 90 10   # first frame, frame count, fps
 ```
 
+> **Do not close the lid all the way.** A fully closed MacBook goes to sleep. "Eyes shut" is anything below the squint angle you set during calibration, so stop a hand's width above closed.
+
 ### Keys
 
 - `Space` or `Esc`: stop at any time
 - `D`: debug overlay with the raw Presage values
+- `V`: presenter view (your live face plus the signals, for screen-recorded demos)
 - `M`: heartbeat sound on or off
 - `F` (intro screen): flashing light on or off
 - Arrow keys: the lid, when no lid sensor is found

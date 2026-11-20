@@ -13,7 +13,7 @@ export function showIntro(o: {
     <ul>
       <li><b>Lid open:</b> you are watching. It cannot move. Every <b>blink</b> lets it take a step. Hold a calm, steady gaze and it slowly backs away.</li>
       <li><b>Tilt the lid down to squint.</b> Writing on the walls only shows when you squint. Find all 3 messages. While you squint, it creeps closer.</li>
-      <li><b>Shut the lid</b> to close your eyes. You will not see it. It rushes in. Listen.</li>
+      <li><b>Lower the lid most of the way</b> to close your eyes (never fully shut, or the Mac sleeps). You will not see it. It rushes in. Listen.</li>
       <li>When it is close, <b>hold your breath</b> and it loses you for a moment. Never more than 8 seconds, then breathe normally.</li>
       <li>The faster your pulse, the faster it moves. To escape, look at it and steady yourself.</li>
     </ul>

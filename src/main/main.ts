@@ -1,6 +1,6 @@
 // Electron main process: window, Presage IPC bridge, lid sensor, run files, config.
 
-import { app, BrowserWindow, ipcMain, session, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, powerSaveBlocker, session, shell } from 'electron';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { PeekConfig } from '../shared/types';
@@ -79,7 +79,8 @@ app.whenReady().then(() => {
   const config: PeekConfig = {
     apiKey: env.PRESAGE_API_KEY || null,
     replay: replayArg(),
-    debug: flag('--debug') || flag('--replay'),
+    debug: flag('--debug') || flag('--replay') || flag('--presenter'),
+    presenter: flag('--presenter'),
     lidSource: 'simulator',
     lidError: null,
     version: app.getVersion(),
@@ -97,6 +98,9 @@ app.whenReady().then(() => {
   ipcMain.handle('peek:deleteRuns', () => deleteRuns());
   ipcMain.handle('peek:showRuns', () => shell.openPath(runsDir()));
   ipcMain.handle('peek:quit', () => app.quit());
+
+  // Play needs no keyboard or mouse, so keep the display awake while Peek is open.
+  powerSaveBlocker.start('prevent-display-sleep');
 
   createWindow(config);
 });

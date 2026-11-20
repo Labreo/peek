@@ -73,3 +73,24 @@ canvas.chart { width: 100%; height: 220px; display: block; margin: 12px 0; backg
 #hud .src { color: #d9a24a; font-size: 10px; }
 #hud canvas { width: 100%; height: 40px; display: block; margin-top: 4px; }
 #hud .title { font-size: 11px; letter-spacing: 0.2em; color: #d9a24a; margin-bottom: 4px; }
+
+/* Presenter view: the player's live face for screen-recorded demos. Sits above the eyelids and
+   the shut-eye blackout so viewers still see the person when the game screen is black. */
+#presenter { position: fixed; right: 16px; bottom: 28px; width: min(30vw, 420px); z-index: 50;
+  border: 1px solid #3a342c; border-radius: 6px; overflow: hidden; background: #000; box-shadow: 0 10px 40px #000; }
+#presenter video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transform: scaleX(-1); }
+#presenter.no-cam video { display: none; }
+#presenter.no-cam::before { content: 'no live camera (replay)'; display: block; padding: 40px 12px; text-align: center; font: 12px var(--mono); color: var(--dim); }
+#presenter .pv-zone { position: absolute; top: 8px; left: 8px; font: 600 13px var(--mono); letter-spacing: 0.15em;
+  padding: 3px 8px; border-radius: 3px; background: rgba(0,0,0,0.65); }
+#presenter .pv-zone.z-open { color: var(--calm); }
+#presenter .pv-zone.z-squint { color: #d9a24a; }
+#presenter .pv-zone.z-shut { color: #ff8b7b; }
+#presenter .pv-blink { position: absolute; top: 8px; right: 8px; font: 600 13px var(--mono); letter-spacing: 0.15em;
+  color: #111; background: #d9a24a; padding: 3px 8px; border-radius: 3px; opacity: 0; transition: opacity 120ms; }
+#presenter .pv-bar { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,9,8,0.95); font: 12px var(--mono); color: var(--dim); }
+#presenter .pv-pulse { font-size: 26px; color: #ff6b5b; font-weight: 600; }
+#presenter .pv-unit { margin-right: 10px; }
+#presenter .pv-hinge { width: 34px; height: 26px; color: var(--ink); }
+#presenter .pv-deg { font-size: 18px; color: var(--ink); min-width: 48px; }
+#presenter .pv-src { margin-left: auto; font-size: 10px; color: #d9a24a; }
