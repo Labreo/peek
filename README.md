@@ -52,6 +52,8 @@ cp .env.example .env      # then put your key in .env: PRESAGE_API_KEY=...
 npm start
 ```
 
+The first `npm start` downloads the Electron runtime (about 100 MB) once. The lid sensor uses node-hid's prebuilt binary, so no compiler is needed. If npm 11 asks about install scripts, the ones Peek needs are already approved in `package.json`.
+
 Phone as webcam: plug the phone in, tap the USB notification on the phone, choose **Webcam**. Prop it at face height about an arm's length away. In Peek's camera check, pick it from the camera list.
 
 macOS asks for camera permission the first time. If you launch from a terminal, the permission is granted to that terminal app.
