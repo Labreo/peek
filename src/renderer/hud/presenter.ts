@@ -52,10 +52,11 @@ export class PresenterView {
     this.el.hidden = !on;
   }
 
-  update(f: SignalFrame, o: { hasCamera: boolean; label: string | null }) {
+  update(f: SignalFrame, o: { hasCamera: boolean; replay: boolean; label: string | null }) {
     if (!this.visible) return;
     this.el.classList.toggle('no-cam', !o.hasCamera);
-    (this.el.querySelector('.pv-src') as HTMLElement).textContent = o.hasCamera ? 'Presage + hinge, live' : 'recorded run';
+    this.el.classList.toggle('replay', o.replay);
+    (this.el.querySelector('.pv-src') as HTMLElement).textContent = o.replay ? 'recorded run' : 'Presage + hinge, live';
     this.pulse.textContent = f.pulseBpm != null ? String(Math.round(f.pulseBpm)) : '--';
     this.lid.innerHTML = `${Math.round(f.lidDeg)}&deg;`;
     // Hinge icon: the lid line rotates with the real angle (0 = shut flat, 90 = upright).

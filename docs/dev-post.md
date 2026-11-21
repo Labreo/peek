@@ -70,22 +70,22 @@ That creates the tension: you need to squint to read the clues, but squinting le
 
 **Numbers from playtests.** TODO: average pulse rise after shutting the lid, blinks per run, how quickly breath holds were picked up, win rate.
 
-The Presage integration, from [`src/renderer/presage.ts`](https://github.com/Labreo/peek/blob/main/src/renderer/presage.ts):
+The Presage integration, from [`src/main/presage.ts`](https://github.com/Labreo/peek/blob/main/src/main/presage.ts):
 
 ```ts
-const sdk = new SmartSpectraSDK({
+const sdk = new ss.SmartSpectraSDK({
   apiKey: this.apiKey,
-  requestedMetrics: [...breathingMetrics, MetricType.PULSE_RATE, MetricType.BLINKING, MetricType.EXPRESSIONS],
+  requestedMetrics: [...ss.breathingMetrics, ss.MetricType.PULSE_RATE, ss.MetricType.BLINKING, ss.MetricType.EXPRESSIONS],
   enableTelemetry: false, // Peek opts out of Presage's optional SDK telemetry
 });
-sdk.on('metrics', (buf) => this.onMetrics(buf)); // pulse, breathing trace, blinks -> signal bus
-sdk.useMediaStream(phoneCameraStream);            // the Pixel, picked by name
-await sdk.start();
+sdk.on('metrics', (buf, ts) => this.send({ type: 'metrics', buf: new Uint8Array(buf), ts })); // -> signal bus
+sdk.useCamera(ss.CameraSelection.byId(cameraId), { width: 1280, height: 720, fps: 30 });     // the Pixel
+sdk.start();
 ```
 
 TODO: screenshot of the debug HUD (press D in game) showing raw Presage values next to the ghost's distance.
 
-**What did not work.** TODO: honest paragraph. Start with: my first plan used the MacBook camera, which goes blind the moment you close the lid, which is the whole game. That is why the phone became the eye.
+**What did not work.** TODO: honest paragraph in your words. Material: (1) the MacBook camera goes blind the moment you close the lid, which is the whole game, so the phone became the eye; (2) the first capture path copied every frame from the window to the main process, and with the 3D scene running Presage stopped with "frame rate too low" (error 14), so capture moved into the main process, natively; (3) a second app or preview opening the Pixel at the same time broke Presage's frame timing (error 11), so the presenter view uses the laptop's own camera instead; (4) at 0.5 m per blink, normal blinking ended every run in 2 minutes, so blinks became 0.25 m and a calm gaze pushes the ghost back.
 
 ## Prize Categories
 

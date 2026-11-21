@@ -1,15 +1,12 @@
-// Electron main process: window, Presage IPC bridge, lid sensor, run files, config.
+// Electron main process: window, Presage (native capture), lid sensor, run files, config.
 
 import { app, BrowserWindow, ipcMain, powerSaveBlocker, session, shell } from 'electron';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { PeekConfig } from '../shared/types';
 import { startLid, type LidReader } from './lid';
+import { listNativeCameras, NativePresage } from './presage';
 import { deleteRuns, runsDir, saveRun } from './recorder';
-
-// The SDK's main-process half. Frames from the renderer are processed natively here.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { bindSmartSpectraIpc } = require('@smartspectra/node-sdk/main');
 
 const ROOT = resolve(__dirname, '..');
 const argv = process.argv.slice(1);
@@ -36,6 +33,7 @@ function replayArg(): PeekConfig['replay'] {
 
 let win: BrowserWindow | null = null;
 let lid: LidReader | null = null;
+let presage: NativePresage | null = null;
 
 function createWindow(config: PeekConfig) {
   // Dev aid: PEEK_SIZE=960x600 sets the window size (for recording GIFs).
@@ -53,7 +51,6 @@ function createWindow(config: PeekConfig) {
       autoplayPolicy: 'no-user-gesture-required', // replay mode starts audio without a click
     },
   });
-  bindSmartSpectraIpc(win);
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.loadFile(join(__dirname, 'index.html'));
@@ -79,8 +76,9 @@ app.whenReady().then(() => {
   const config: PeekConfig = {
     apiKey: env.PRESAGE_API_KEY || null,
     replay: replayArg(),
-    debug: flag('--debug') || flag('--replay') || flag('--presenter'),
+    debug: flag('--peek-debug') || flag('--replay') || flag('--presenter'),
     presenter: flag('--presenter'),
+    preview: !flag('--no-preview'),
     lidSource: 'simulator',
     lidError: null,
     version: app.getVersion(),
@@ -94,6 +92,13 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle('peek:config', () => config);
+  ipcMain.handle('peek:presage:cameras', () => listNativeCameras());
+  ipcMain.handle('peek:presage:start', (_e, cameraId: string) => {
+    if (!config.apiKey) return;
+    presage ??= new NativePresage(config.apiKey, () => win);
+    return presage.start(String(cameraId));
+  });
+  ipcMain.handle('peek:presage:stop', () => presage?.stop());
   ipcMain.handle('peek:saveRun', (_e, jsonl: string) => saveRun(String(jsonl)));
   ipcMain.handle('peek:deleteRuns', () => deleteRuns());
   ipcMain.handle('peek:showRuns', () => shell.openPath(runsDir()));
@@ -105,7 +110,8 @@ app.whenReady().then(() => {
   createWindow(config);
 });
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
   lid?.stop();
+  await presage?.stop();
   app.quit(); // quitting clears every reading held in memory
 });

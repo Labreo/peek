@@ -36,7 +36,7 @@ export class DebugHud {
     if (now - this.fpsT >= 1000) { this.fps = (this.frames * 1000) / (now - this.fpsT); this.frames = 0; this.fpsT = now; }
     if (!this.visible) return;
     const p = o.presage;
-    (this.el.querySelector('.title') as HTMLElement).innerHTML = p ? 'PEEK DEBUG &middot; PRESAGE LIVE' : 'PEEK DEBUG &middot; RECORDED RUN';
+    (this.el.querySelector('.title') as HTMLElement).innerHTML = o.lidSource === 'replay' ? 'PEEK DEBUG &middot; RECORDED RUN' : 'PEEK DEBUG &middot; PRESAGE LIVE';
     const rows: [string, string, string?][] = [
       ['state', o.state],
       ['lid angle', f ? `${fmt(f.lidDeg, 0)}&deg; ${f.lidZone.toUpperCase()}` : '--', o.lidSource],
@@ -49,7 +49,7 @@ export class DebugHud {
       ['blinks', f ? `${f.blinkCount}${f.blinkEvent ? ' &#9679;' : ''}` : '--', 'presage'],
       ['face', f ? f.face : '--', 'presage'],
       ['startle', f ? `${fmt(f.startle, 2)}${f.startleEvent ? ' &#9679;' : ''}` : '--', 'presage expr'],
-      ['sdk', p ? `${p.processingName} &middot; ${p.packets} pkts` : 'replay'],
+      ['sdk', p ? `${p.processingName} &middot; ${p.packets} pkts` : o.lidSource === 'replay' ? 'replay' : 'not started'],
       ['ghost', o.distance != null ? `${fmt(o.distance, 2)} m &middot; v ${fmt(o.velocity, 2)}` : '--'],
       ['fps', fmt(this.fps, 0)],
     ];

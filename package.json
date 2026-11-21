@@ -30,7 +30,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "start": "npm run build && electron .",
-    "dev": "npm run build && electron . --debug",
+    "dev": "npm run build && electron . --peek-debug",
     "replay": "npm run build && electron . --replay",
     "sim": "npm run build && electron . --sim-lid",
     "test": "vitest run",

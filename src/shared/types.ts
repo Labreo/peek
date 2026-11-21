@@ -51,6 +51,7 @@ export interface PeekConfig {
   replay: { path: string; text: string } | null;
   debug: boolean;
   presenter: boolean;     // start with the presenter view on (npm run demo)
+  preview: boolean;       // presenter view may show a second camera (never the sensing one)
   lidSource: LidSource;
   lidError: string | null;
   version: string;

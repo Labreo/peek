@@ -91,16 +91,17 @@ scripts/make-gif.sh /tmp/peek-frames docs/media/squint.gif 100 90 10   # first f
 ## How it works
 
 ```
-Phone (USB webcam) ──> getUserMedia (renderer) ──> @smartspectra/node-sdk/renderer
-                                                         │ frames over IPC
-                                                         v
-                      Electron main: @smartspectra/node-sdk (native, on this Mac)
-                                                         │ metrics: pulse, breathing trace, blinks
-MacBook hinge ──> node-hid (main, 30 Hz) ──> IPC ──┐     v
-                                                   └──> SignalBus (renderer) ──> game model ──> Three.js + Web Audio
+Phone (USB webcam) ──> Electron main: @smartspectra/node-sdk, native camera capture, on this Mac
+                                     │ metrics packets (pulse, breathing trace, blinks, expressions)
+MacBook hinge ──> node-hid (main, 30 Hz) ──┐  │ IPC
+                                           v  v
+                         SignalBus (renderer) ──> game model ──> Three.js + Web Audio
 ```
 
-- [`src/renderer/presage.ts`](src/renderer/presage.ts): the SmartSpectra integration. Requests breathing, `PULSE_RATE` and `BLINKING`, turns off telemetry, decodes each metrics packet into events.
+- [`src/main/presage.ts`](src/main/presage.ts): the SmartSpectra integration. Opens the chosen camera natively, requests breathing, `PULSE_RATE`, `BLINKING` and `EXPRESSIONS`, turns off telemetry, forwards metrics packets to the window.
+- [`src/renderer/presage.ts`](src/renderer/presage.ts): decodes each metrics packet into signal-bus events and maps Presage's face checks to hints.
+
+Why native capture: the first version used Presage's renderer helper, which copies every camera frame from the window to the main process. With the 3D scene running on a MacBook Air, that path dropped below Presage's minimum frame rate (error 14). Capturing in the main process, as Presage's docs recommend for performance, fixed it. One rule follows from it: **nothing else may open the sensing camera while Peek runs** (not OBS, not a preview), or the SDK's frame timing breaks (error 11).
 - [`src/main/lid.ts`](src/main/lid.ts): reads the hinge angle (HID usage page `0x20`, usage `0x8A`, feature report 1).
 - [`src/shared/signalBus.ts`](src/shared/signalBus.ts): filtering. Stable-only pulse with an EMA, a 3 s rolling breathing amplitude for breath-hold detection, edge-triggered blinks with a 250 ms refractory period, a median-filtered lid with 3 degrees of hysteresis.
 - [`src/renderer/game/model.ts`](src/renderer/game/model.ts): the ghost movement rules. All constants live in [`tuning.ts`](src/renderer/game/tuning.ts).

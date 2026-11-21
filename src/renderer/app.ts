@@ -15,7 +15,7 @@ import { RoomScene } from './game/scene';
 import { CHAPTERS, chapterTuning, TUNING } from './game/tuning';
 import { DebugHud } from './hud/debug';
 import { PresenterView } from './hud/presenter';
-import { listCameras, Presage } from './presage';
+import { listCameras, openPresenterCamera, Presage } from './presage';
 import { showBaseline, BASELINE_MAX_MS, BASELINE_MS } from './screens/baseline';
 import { showCalibrateLid } from './screens/calibrateLid';
 import { showCameraCheck } from './screens/cameraCheck';
@@ -149,7 +149,7 @@ function go(next: State) {
       break;
     case 'PAUSED_NO_FACE':
       mount(`<h2>Paused</h2><p>The camera lost your face. Sit back in front of it and the game will continue.</p><p class="small" id="ph"></p>
-        <p class="small">Camera unplugged? Plug it back in and press <span class="kbd">Enter</span>.</p>`);
+        <p class="small">Measurement stopped, or the camera was unplugged? Fix it, then press <span class="kbd">Enter</span> to restart the camera.</p>`);
       break;
     case 'WIN':
       clear();
@@ -201,34 +201,55 @@ function ensureAudio() {
   audio.resume();
 }
 
-async function startCameraCheck() {
-  presage ??= new Presage(config.apiKey!, onRaw);
-  // Camera labels only appear after a first permission grant.
-  let cams = await listCameras();
-  if (cams.every((c) => !c.label || c.label === 'Camera')) {
-    try { (await navigator.mediaDevices.getUserMedia({ video: true })).getTracks().forEach((t) => t.stop()); } catch { /* denied */ }
-    cams = await listCameras();
+let cameraLabel: string | undefined;
+
+/** Start (or restart) measuring. Used by the camera check, its Try again button and the pause screen. */
+async function startCam(id: string | null) {
+  if (!presage) return;
+  try {
+    await presage.start(id);
+    $('cam-badge').hidden = false;
+    $('cam-badge-name').textContent = cameraLabel ?? 'camera';
+    void syncPresenterCamera();
+  } catch (e) {
+    presage.status.error = `Could not start the camera: ${(e as Error).message}`;
   }
+}
+
+// Presenter view: the player's face from a second camera (never the sensing one), only while the view is on.
+let presenterStream: MediaStream | null = null;
+async function syncPresenterCamera() {
+  const want = presenter.visible && config.preview && !replay && !!presage && state !== 'CONSENT' && state !== 'BOOT';
+  if (want && !presenterStream) {
+    presenterStream = await openPresenterCamera(cameraLabel);
+    presenter.setStream(presenterStream);
+  } else if (!want && presenterStream) {
+    presenterStream.getTracks().forEach((t) => t.stop());
+    presenterStream = null;
+    presenter.setStream(null);
+  }
+}
+
+async function startCameraCheck() {
+  presage ??= new Presage(onRaw);
+  const cams = await listCameras();
   const saved = store.get('peek.camera');
-  let selected = cameraId = cams.find((c) => c.deviceId === saved)?.deviceId ?? cams[0]?.deviceId ?? null;
-  const startCam = async (id: string | null) => {
-    try {
-      await presage!.start(id);
-      const v = $('preview') as HTMLVideoElement;
-      v.srcObject = presage!.stream;
-      void v.play();
-      $('cam-badge').hidden = false;
-    } catch (e) {
-      presage!.status.error = `Could not start the camera: ${(e as Error).message}`;
-    }
-  };
+  const pick = cams.find((c) => c.deviceId === saved) ?? cams[0];
+  cameraId = pick?.deviceId ?? null;
+  cameraLabel = pick?.label;
   screenCtl = showCameraCheck({
-    cameras: cams, selected,
+    cameras: cams, selected: cameraId,
     lidNote: simLid ? (config.lidError ?? 'Lid sensor not available.') : null,
-    onCamera: (id) => { selected = cameraId = id; store.set('peek.camera', id); void startCam(id); },
+    onCamera: (id) => {
+      cameraId = id;
+      cameraLabel = cams.find((c) => c.deviceId === id)?.label;
+      store.set('peek.camera', id);
+      void startCam(id);
+    },
+    onRetry: () => void startCam(cameraId),
     onContinue: () => go('CALIBRATE_LID'),
   });
-  await startCam(selected);
+  await startCam(cameraId);
 }
 
 /** A new session from the intro: chapter 1 (or the debug start chapter), fresh recording. */
@@ -359,7 +380,7 @@ function loop(now: number) {
     }
   }
   if (state === 'CHAPTER_CARD' && cardAuto && now - stateT > cardAuto) beginChapter();
-  if (state === 'PAUSED_NO_FACE') { const ph = document.getElementById('ph'); if (ph) ph.textContent = presage?.status.hint ?? ''; }
+  if (state === 'PAUSED_NO_FACE') { const ph = document.getElementById('ph'); if (ph) ph.textContent = presage?.status.error ?? presage?.status.hint ?? ''; }
   if (state === 'WIN') {
     scene.lightsOn = Math.min(1, scene.lightsOn + dt / 2);
     if (now - stateT > 3500) endAttempt();
@@ -415,9 +436,9 @@ function loop(now: number) {
     }
   }
 
-  presenter.setStream(presage?.stream ?? null);
   presenter.update(frame, {
-    hasCamera: !!presage?.stream,
+    hasCamera: !!presenterStream,
+    replay: !!replay,
     label: playing && game.blackout ? 'LAMP DIED' : state === 'PAUSED_NO_FACE' ? 'FACE LOST' : null,
   });
 
@@ -435,7 +456,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'Escape') { e.preventDefault(); panic(); return; }
   keysDown.add(e.code);
   if (e.code === 'KeyD' && !e.metaKey) hud.toggle();
-  if (e.code === 'KeyV' && !e.metaKey) presenter.toggle();
+  if (e.code === 'KeyV' && !e.metaKey) { presenter.toggle(); void syncPresenterCamera(); }
   if (e.code === 'KeyF' && state === 'INTRO') toggleOption('flashing');
   if (e.code === 'KeyM') { if (state === 'INTRO') toggleOption('heart'); else { heartOn = !heartOn; store.set('peek.heart', heartOn ? 'on' : 'off'); } }
   // Debug: pick the starting chapter on the intro screen.
@@ -447,7 +468,7 @@ window.addEventListener('keydown', (e) => {
     if (state === 'CALIBRATE_LID') { e.preventDefault(); screenCtl?.enter?.(); }
     else if (state === 'INTRO') { e.preventDefault(); startSession(); }
     else if (state === 'CHAPTER_CARD') { e.preventDefault(); beginChapter(); }
-    else if (state === 'PAUSED_NO_FACE' && presage) { e.preventDefault(); presage.status.error = null; void presage.start(cameraId).catch((err) => { presage!.status.error = String(err); }); }
+    else if (state === 'PAUSED_NO_FACE' && presage) { e.preventDefault(); void startCam(cameraId); }
   }
   // Developer shortcut: skip the 60 s baseline (debug mode only).
   if (e.code === 'KeyS' && config.debug && state === 'CALIBRATE_BASELINE') baselineMs = BASELINE_MS;
@@ -470,7 +491,7 @@ async function bootReplay() {
 
 async function boot() {
   config = await window.peek.config();
-  console.log('[peek] presage bridge:', typeof (window as unknown as { __smartspectraBridge?: unknown }).__smartspectraBridge, 'lid:', config.lidSource);
+  console.log('[peek] capture: native (main process), lid:', config.lidSource);
   scene.flashing = flashing;
   hud.toggle(config.debug);
   presenter.toggle(config.presenter);
