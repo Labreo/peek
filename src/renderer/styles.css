@@ -79,7 +79,9 @@ canvas.chart { width: 100%; height: 220px; display: block; margin: 12px 0; backg
   border: 1px solid #3a342c; border-radius: 6px; overflow: hidden; background: #000; box-shadow: 0 10px 40px #000; }
 #presenter video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transform: scaleX(-1); }
 #presenter.no-cam video { display: none; }
-#presenter.no-cam::before { content: 'no second camera for the presenter view'; display: block; padding: 40px 12px; text-align: center; font: 12px var(--mono); color: var(--dim); }
+/* No second camera (e.g. the MacBook camera is the sensing one): show only the signal bar. */
+#presenter.no-cam:not(.replay) { width: auto; }
+#presenter.no-cam:not(.replay) .pv-zone, #presenter.no-cam:not(.replay) .pv-blink { position: static; display: inline-block; margin: 6px 0 0 8px; }
 #presenter .pv-zone { position: absolute; top: 8px; left: 8px; font: 600 13px var(--mono); letter-spacing: 0.15em;
   padding: 3px 8px; border-radius: 3px; background: rgba(0,0,0,0.65); }
 #presenter .pv-zone.z-open { color: var(--calm); }
