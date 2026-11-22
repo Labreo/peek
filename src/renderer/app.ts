@@ -1,4 +1,4 @@
-// Peek renderer: the state machine (PEEK_PLAN.md Section 7.2, extended with chapters).
+// Peek renderer: the state machine.
 // BOOT -> CONSENT -> CAMERA_CHECK -> CALIBRATE_LID -> CALIBRATE_BASELINE -> INTRO
 //      -> CHAPTER_CARD -> PLAY -> WIN -> CHAPTER_CARD (next chapter) ... -> DEBRIEF
 //                              -> LOSE -> DEBRIEF -> Retry chapter -> CHAPTER_CARD

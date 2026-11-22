@@ -1,4 +1,4 @@
-// SmartSpectra SDK, native capture in the main process (PEEK_PLAN.md Section 9).
+// SmartSpectra SDK, native capture in the main process.
 //
 // Why here and not in the renderer: the renderer helper copies every camera frame from the
 // window to the main process over IPC. On a MacBook Air with the 3D scene running, that path

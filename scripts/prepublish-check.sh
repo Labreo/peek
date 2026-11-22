@@ -36,6 +36,7 @@ if grep -rniE "$words" "${facing[@]}" >/dev/null 2>&1; then block "health-claim 
 if grep -rn $'\xe2\x80\x94' "${facing[@]}" >/dev/null 2>&1; then block "em dashes found:"; grep -rn $'\xe2\x80\x94' "${facing[@]}" | cut -c1-120; else ok "no em dashes"; fi
 
 echo "Submission readiness"
+if [[ -f docs/dev-post.md ]]; then
 todo=$(grep -c "TODO" docs/dev-post.md 2>/dev/null || echo 0)
 [[ "$todo" -gt 0 ]] && note "docs/dev-post.md still has $todo TODOs" || ok "post draft has no TODOs"
 grep -q '"source":"synthetic"' replays/sample-run.jsonl && note "replays/sample-run.jsonl is the synthetic bot run; replace it with a real recording" || ok "sample run is a real recording"
@@ -43,6 +44,7 @@ heads=("## What I Built" "## Demo" "## Code" "## How It Responds to Human Signal
 prev=0; for h in "${heads[@]}"; do n=$(grep -nF "$h" docs/dev-post.md | head -1 | cut -d: -f1); if [[ -z "$n" || "$n" -le "$prev" ]]; then block "post heading missing or out of order: $h"; else prev=$n; fi; done
 [[ $prev -gt 0 ]] && ok "post headings present and in template order"
 grep -q "presagechallenge" docs/dev-post.md && grep -q "devchallenge" docs/dev-post.md && ok "post tags" || block "post needs #presagechallenge and #devchallenge tags"
+else ok "post draft is kept outside the repo"; fi
 big=$(git ls-files | xargs -I{} sh -c 'test -f "{}" && [ $(wc -c < "{}") -gt 5000000 ] && echo "{}"' 2>/dev/null)
 [[ -n "$big" ]] && note "large tracked files: $big" || ok "no tracked file over 5 MB"
 

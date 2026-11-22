@@ -1,6 +1,6 @@
 // Merges raw Presage + lid events into one SignalFrame per tick.
 // Pure logic, no DOM or Electron, so it runs in the renderer, in replay and in tests.
-// See PEEK_PLAN.md Section 6 ("Processing in signalBus.ts").
+// Filtering rules are listed in the README under "How it works".
 
 import type { Calibration, FaceStatus, LidZone, RawEvent, SignalFrame } from './types';
 

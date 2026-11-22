@@ -11,3 +11,7 @@ runs/
 *.mp4
 *.mov
 recordings/
+
+# Local working notes, not published
+PEEK_PLAN.md
+docs/dev-post.md

@@ -1,4 +1,4 @@
-// Every gameplay constant in one place (PEEK_PLAN.md Section 7.1). Retune after playtests.
+// Every gameplay constant in one place. Retune after playtests.
 
 export const TUNING = {
   startDistance: 10.0,   // m

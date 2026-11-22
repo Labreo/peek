@@ -1,4 +1,4 @@
-// Shared data contracts. See PEEK_PLAN.md Section 6.
+// Shared data contracts.
 
 export type FaceStatus = 'ok' | 'no_face' | 'bad_light' | 'moving' | 'adjust' | 'warming_up';
 

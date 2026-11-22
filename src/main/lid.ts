@@ -1,4 +1,4 @@
-// MacBook lid angle reader (PEEK_PLAN.md Section 8).
+// MacBook lid angle reader.
 // The hinge sensor is an Apple HID device: usage page 0x20, usage 0x8A.
 // Feature report ID 1; the angle in degrees is a little-endian uint16 at bytes 1..2
 // (layout taken from LidAngleSensor by Sam Henri Gold). No sudo needed.

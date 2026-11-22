@@ -1,4 +1,4 @@
-// SmartSpectra, window side (PEEK_PLAN.md Section 9).
+// SmartSpectra, window side.
 // The SDK runs and captures the camera natively in the main process (src/main/presage.ts).
 // This class asks it to start, receives its events over IPC, and decodes each metrics packet
 // into RawEvents for the signal bus. Peek never opens the sensing camera itself and never asks

@@ -36,7 +36,7 @@ Each chapter ends the same way: open your eyes, look at it, and steady your puls
 
 - A MacBook with Apple Silicon **M2 or newer** for the lid sensor (tested on M3). On other Macs the arrow keys act as the lid.
 - macOS, Node.js 20 or newer.
-- A camera that can see your face while the lid is shut. Best: an **Android 14+ phone in USB webcam mode** (tested setup: Pixel 8a). Any external webcam works too. The built-in camera works for trying it out, but it goes blind when you shut the lid (the game pauses).
+- A camera that can see your face while the lid is shut. Best: an **Android 14+ phone in USB webcam mode** (tested setup: Pixel 8a). Any external webcam works too. The built-in camera works too, but it goes blind when you lower the lid, so the game keeps your last pulse until you open it again.
 - A **USB 2.0** USB-C cable for the phone. Android's docs list a known issue with USB 3 cables and macOS webcam mode.
 - A soft desk lamp facing you. The game is dark; Presage needs to see your face.
 - Headphones, strongly recommended.
@@ -61,7 +61,7 @@ macOS asks for camera permission the first time. If you launch from a terminal, 
 ### Other ways to run
 
 ```bash
-npm run replay                       # watch a recorded run: no camera, no key, no lid sensor needed
+npm run replay                       # watch the sample run (a scripted bot session, marked synthetic): no camera, key or lid needed
 npm run replay -- path/to/run.jsonl  # replay any saved run file
 npm run sim                          # play with the arrow keys as the lid
 npm run demo                         # presenter view + debug overlay on, for recording demos
@@ -133,7 +133,7 @@ Before play you calibrate your lid (your usual open angle and your squint floor)
 - **"Lid sensor not found":** the hinge sensor needs an M2 or newer MacBook. Use the arrow keys instead.
 - **Phone not in the camera list:** use a USB 2.0 cable, unlock the phone, choose Webcam in the USB notification, then reopen the camera dropdown.
 - **Pulse never stabilizes:** add light on your face, sit still, move the phone to arm's length. After 30 s you can continue without a stable pulse.
-- **Game pauses when the lid is shut:** your camera is the laptop's own. Use the phone.
+- **Pulse freezes when the lid is lowered:** your camera is the laptop's own, and the lowered lid blocks it. Use a phone or an external webcam.
 
 ## Credits
 
@@ -144,3 +144,5 @@ See [CREDITS.md](CREDITS.md). Inspired by *Nevermind* (biofeedback horror) and S
 [MIT](LICENSE) for Peek's own code. The SmartSpectra SDK is installed from npm under Presage's own license and is not part of this repository.
 
 See [SECURITY.md](SECURITY.md) for how keys and data are handled, and [docs/demo-video.md](docs/demo-video.md) for filming a demo.
+
+Demo video: https://youtu.be/S88PnXiHM8c

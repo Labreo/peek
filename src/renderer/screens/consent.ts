@@ -1,4 +1,4 @@
-// Consent card, shown before any camera access (PEEK_PLAN.md Section 12).
+// Consent card, shown before any camera access.
 
 import { mount, q } from './mount';
 
