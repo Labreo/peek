@@ -70,6 +70,29 @@ From the official challenge page and contest rules (checked 2026-11-22):
 
 Target: **2 to 2.5 minutes**. Captions on screen instead of a voiceover is fine.
 
+## Placement when the MacBook camera does the sensing (simplest setup)
+
+The MacBook camera feeds Presage. The Pixel is **not plugged into the Mac**: it is only a normal phone filming in its own camera app, so nothing conflicts.
+
+```
+                 back wall
+   [lamp]                                   lamp: in front of you, off to the side,
+      \                                     lighting your face, NOT pointing at the Pixel
+       \        ┌───────────┐
+        \       │  MacBook  │  <- lid faces you
+                 └───────────┘
+                     YOU                     Pixel: about 60 degrees to your side,
+                                   [Pixel]   1 to 1.2 m away, landscape, at chest height,
+                                     /       sees your face in three-quarter view AND the
+                                    /        lid edge in profile, so the angle change is obvious
+```
+
+- **Frame:** your face, both hands, and the side of the MacBook so the lid's angle reads clearly. Leave some space above your head.
+- **Landscape, 1080p, 30 fps.** Prop the phone on books or a mug. Do not hold it.
+- **Lock exposure:** in the Pixel camera, tap and hold on your face to lock focus and exposure, so the dark game screen does not make the picture pump.
+- **Keep the Pixel out of the MacBook camera's view of your face**, and do not stand it right behind you (only your face should be in the MacBook camera's view).
+- **Sync mark:** start the Pixel recording first, then OBS. Before playing, snap the lid down and back up once, quickly. That moment is visible in both videos (your hand in the Pixel video, the angle number jumping in the screen recording), and I line them up on it.
+
 ## What to record (raw footage)
 
 | Take | What | Length | How |
