@@ -202,6 +202,8 @@ function ensureAudio() {
 }
 
 let cameraLabel: string | undefined;
+/** True when the sensing camera is the MacBook's own, which the lid points away from the face. */
+const builtInCamera = () => /facetime|built-in/i.test(cameraLabel ?? '');
 
 /** Start (or restart) measuring. Used by the camera check, its Try again button and the pause screen. */
 async function startCam(id: string | null) {
@@ -346,7 +348,10 @@ function loop(now: number) {
         if (frame.face === 'ok') go('PLAY');
         continue; // the game and the ghost freeze
       }
-      if (!replay && frame.faceLostMs > TUNING.faceLostPauseMs) { go('PAUSED_NO_FACE'); continue; }
+      // With the laptop's own camera, lowering the lid blinds it: that is expected, so only pause
+      // when the face is lost with the lid open. The game keeps the last pulse meanwhile.
+      const blindByLid = builtInCamera() && frame.lidZone !== 'open';
+      if (!replay && !blindByLid && frame.faceLostMs > TUNING.faceLostPauseMs) { go('PAUSED_NO_FACE'); continue; }
       simT += STEP_MS;
       const before = game.distance;
       const nEv = game.events.length;

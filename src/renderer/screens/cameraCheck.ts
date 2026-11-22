@@ -24,6 +24,7 @@ export function showCameraCheck(o: {
     <p class="big" id="pulse">-- <span class="small">bpm</span></p>
     <p id="hint" class="status-bad">Starting the Presage SDK...</p>
     <p class="small" id="detail"></p>
+    <p class="small" id="builtin" hidden>Using the MacBook camera: it sees you with the lid open. When you lower the lid it goes blind, so the game keeps your last pulse until you open it again. A phone as the camera works best.</p>
     ${o.lidNote ? `<p class="small status-bad">${esc(o.lidNote)} Use the <span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> arrow keys as the lid.</p>` : ''}
     <div class="row">
       <button class="primary" id="go" disabled>Waiting for a stable pulse</button>
@@ -31,7 +32,10 @@ export function showCameraCheck(o: {
     </div>
   `);
   const sel = q<HTMLSelectElement>(el, '#cam');
-  sel.onchange = () => o.onCamera(sel.value);
+  const builtin = q(el, '#builtin');
+  const syncNote = () => { builtin.hidden = !/facetime|built-in/i.test(sel.selectedOptions[0]?.text ?? ''); };
+  syncNote();
+  sel.onchange = () => { syncNote(); o.onCamera(sel.value); };
   const go = q<HTMLButtonElement>(el, '#go');
   go.onclick = o.onContinue;
   const retry = q<HTMLButtonElement>(el, '#retry');
